@@ -1,0 +1,19 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+# Do NOT commit terraform.tfvars to version control
+
+# Proxmox API Configuration
+proxmox_api_url          = "https://proxmox-01.example.com:8006/api2/json"
+proxmox_api_token_id     = "terraform@pve!token"
+proxmox_api_token_secret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+proxmox_tls_insecure     = false
+
+# Cloud-init Configuration
+ci_user     = "admin"
+ci_password = "change-me-to-a-secure-password"
+
+# SSH Public Key for VM Access
+ssh_keys = "ssh-ed25519 AAAA... your_key_comment"
+
+# DNS Configuration
+searchdomain = "example.com"

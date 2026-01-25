@@ -1,0 +1,44 @@
+module "dns-03" {
+  source   = "./modules/ubuntu2404_multihomed"
+  clone_id = 9910
+
+  # Properties for new VM
+  vmid               = 1027
+  name               = "dns-03"
+  target_node        = "proxmox-01"
+  tags               = "infrastructure,dns"
+  start_at_node_boot = true
+
+  # --- Hardware Resources ---
+  memory    = 2048
+  cores     = 1
+  disk_size = "24G"
+
+  # Network configuration
+  bridge      = "vmbr0"
+  ip_address  = "10.0.10.27"
+  mac_address = "BC:24:11:10:00:1B"
+  gateway     = "10.0.10.1"
+  nameserver  = "10.0.10.1"
+
+  bridge1      = "vmbr20"
+  ip_address1  = "10.0.20.27"
+  mac_address1 = "BC:24:11:20:00:1B"
+
+  bridge2      = "vmbr50"
+  ip_address2  = "10.0.50.27"
+  mac_address2 = "BC:24:11:50:00:1B"
+
+  bridge3      = "vmbr60"
+  ip_address3  = "10.0.60.27"
+  mac_address3 = "BC:24:11:60:00:1B"
+
+  # Cloud-init and SSH configuration
+  searchdomain = var.searchdomain
+  ci_password  = var.ci_password
+  ssh_keys     = var.ssh_keys
+
+  # High Availability configuration
+  ha_state      = "started"
+  ha_group_name = "critical-infra"
+}
