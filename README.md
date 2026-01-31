@@ -72,32 +72,36 @@ Creates a single-homed Ubuntu 24.04 VM with one network interface.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `vm_name` | Name of the VM | - |
+| `name` | Name of the VM | - |
 | `vmid` | Proxmox VM ID | - |
 | `target_node` | Proxmox node to deploy on | - |
 | `cores` | Number of CPU cores | `1` |
-| `memory` | Memory in MB | `2048` |
-| `disk_size` | Disk size (e.g., "20G") | `"20G"` |
+| `memory` | Memory in MB | `4096` |
+| `disk_size` | Disk size (e.g., "16G") | `"16G"` |
 | `ip_address` | Static IP with CIDR | - |
-| `gateway` | Network gateway | - |
-| `bridge` | Network bridge | `"vmbr0"` |
-| `pool` | Resource pool for backups | - |
-| `hagroup` | HA group name | - |
+| `gateway` | Network gateway | `"10.0.20.1"` |
+| `bridge` | Network bridge | `"vmbr20"` |
+| `pool` | Resource pool for backups | `"Silver-Systems"` |
+| `ha_state` | HA state (started, stopped, enabled, disabled) | `null` |
+| `ha_group_name` | HA group name | `null` |
 
 ### ubuntu2404_multihomed
 
 Creates a multi-homed Ubuntu 24.04 VM supporting up to 4 network interfaces.
 
-Accepts all variables from `ubuntu2404_vm` plus:
+Accepts all variables from `ubuntu2404_vm` plus additional interface fields:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `networks` | List of network configurations | - |
-
-Each network in the list supports:
-- `bridge` - Network bridge name
-- `ip` - IP address with CIDR
-- `mac` - MAC address (optional)
+| `bridge1` | Network bridge name (NIC 2) | `""` |
+| `ip_address1` | IP address with CIDR (NIC 2) | `""` |
+| `mac_address1` | MAC address (NIC 2) | `""` |
+| `bridge2` | Network bridge name (NIC 3) | `""` |
+| `ip_address2` | IP address with CIDR (NIC 3) | `""` |
+| `mac_address2` | MAC address (NIC 3) | `""` |
+| `bridge3` | Network bridge name (NIC 4) | `""` |
+| `ip_address3` | IP address with CIDR (NIC 4) | `""` |
+| `mac_address3` | MAC address (NIC 4) | `""` |
 
 ## Configuration
 
@@ -105,7 +109,12 @@ Each network in the list supports:
 
 Secrets are managed via 1Password CLI. The `terraform.tfvars.tpl` template references secrets stored in 1Password using the `op://` URI scheme.
 
-**1Password Item:** `Terraform Proxmox Infrastructure` in the `HomeLab` vault
+**1Password Vault:** `khaosx-infrastructure`
+
+**1Password Items:**
+- `Proxmox API Token - Terraform`
+- `Admin User`
+- `Terraform Backend Config`
 
 **Required fields:**
 | Field | Description |
@@ -187,7 +196,7 @@ terraform apply
 module "newvm-01" {
   source = "./modules/ubuntu2404_vm"
 
-  vm_name         = "newvm-01"
+  name            = "newvm-01"
   vmid            = 1100
   target_node     = "proxmox-01"
   cores           = 2
@@ -197,10 +206,10 @@ module "newvm-01" {
   gateway         = "10.0.10.1"
   bridge          = "vmbr0"
   pool            = "Silver-Systems"
-  hagroup         = "critical-infra"
+  ha_group_name   = "critical-infra"
   ci_user         = var.ci_user
   ci_password     = var.ci_password
-  ci_sshkeys      = var.ci_sshkeys
+  ssh_keys        = var.ssh_keys
   searchdomain    = var.searchdomain
   nameserver      = var.nameserver
 }

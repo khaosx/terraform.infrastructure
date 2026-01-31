@@ -37,3 +37,9 @@ variable "searchdomain" {
   description = "DNS search domain for all VMs"
   type        = string
 }
+
+variable "nameserver" {
+  description = "DNS nameserver for all VMs"
+  type        = string
+  default     = "10.0.10.1"
+}

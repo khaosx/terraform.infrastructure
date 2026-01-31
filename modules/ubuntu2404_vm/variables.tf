@@ -5,7 +5,7 @@ variable "target_node" { type = string }
 variable "pool" {
   description = "Proxmox resource pool (Gold-Systems, Silver-Systems, Bronze-Systems)"
   type        = string
-  default     = "Silver-Systems" 
+  default     = "Silver-Systems"
 }
 
 variable "start_at_node_boot" {
@@ -17,7 +17,7 @@ variable "start_at_node_boot" {
 # --- VM Identity ---
 variable "vmid" { type = number }
 variable "name" { type = string }
-variable "tags" { 
+variable "tags" {
   type    = string
   default = "terraform,ubuntu,24.04"
 }
@@ -31,7 +31,7 @@ variable "clone_id" {
 
 # --- Hardware Resources ---
 variable "memory" { default = 4096 }
-variable "cores"  { default = 1 }
+variable "cores" { default = 1 }
 variable "disk_size" { default = "16G" }
 
 # --- Network Config ---

@@ -35,6 +35,7 @@ module "dns-02" {
 
   # Cloud-init and SSH configuration
   searchdomain = var.searchdomain
+  ci_user      = var.ci_user
   ci_password  = var.ci_password
   ssh_keys     = var.ssh_keys
 

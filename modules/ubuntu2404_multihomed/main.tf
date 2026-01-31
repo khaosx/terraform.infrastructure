@@ -37,17 +37,17 @@ locals {
 
 resource "proxmox_vm_qemu" "vm" {
   # --- Basic VM Info ---
-  vmid             = var.vmid
-  name             = var.name
-  target_node      = var.target_node
-  agent            = 1
- 
-  hastate          = var.ha_state
-  hagroup          = var.ha_group_name
+  vmid        = var.vmid
+  name        = var.name
+  target_node = var.target_node
+  agent       = 1
+
+  hastate = var.ha_state
+  hagroup = var.ha_group_name
 
   # --- Resources ---
-  memory           = var.memory
-  
+  memory = var.memory
+
   cpu {
     cores = var.cores
     type  = "host"
@@ -55,35 +55,35 @@ resource "proxmox_vm_qemu" "vm" {
 
   # --- Boot & Hardware Details ---
   # Explicitly set the boot order to use the OS disk first.
-  boot             = "order=scsi0;net0"
-  clone_id         = var.clone_id
-  full_clone       = true
-  bios             = "ovmf"
-  machine          = "q35"
-  os_type          = "cloud-init"
-  scsihw           = "virtio-scsi-pci"
-  vm_state         = "running"
-  automatic_reboot = true
+  boot               = "order=scsi0;net0"
+  clone_id           = var.clone_id
+  full_clone         = true
+  bios               = "ovmf"
+  machine            = "q35"
+  os_type            = "cloud-init"
+  scsihw             = "virtio-scsi-pci"
+  vm_state           = "running"
+  automatic_reboot   = true
   start_at_node_boot = true
-  pool             = var.pool
-  tags             = var.tags
+  pool               = var.pool
+  tags               = var.tags
 
   # --- Cloud-Init Configuration ---
-  cicustom         = "vendor=ceph_isos_templates:snippets/ubuntu_2404_cloud.yml"
-  ciupgrade        = true
-  nameserver       = var.nameserver
-  searchdomain     = var.searchdomain
-  
-  ipconfig0        = "ip=${can(regex("/", var.ip_address)) ? var.ip_address : "${var.ip_address}/24"},gw=${var.gateway},ip6=dhcp"
-  ipconfig1        = var.bridge1 != "" && var.ip_address1 != "" ? "ip=${can(regex("/", var.ip_address1)) ? var.ip_address1 : "${var.ip_address1}/24"}" : null
-  ipconfig2        = var.bridge2 != "" && var.ip_address2 != "" ? "ip=${can(regex("/", var.ip_address2)) ? var.ip_address2 : "${var.ip_address2}/24"}" : null
-  ipconfig3        = var.bridge3 != "" && var.ip_address3 != "" ? "ip=${can(regex("/", var.ip_address3)) ? var.ip_address3 : "${var.ip_address3}/24"}" : null
-  
-  skip_ipv6        = true
-  ciuser           = var.ci_user
-  cipassword       = var.ci_password
-  sshkeys          = var.ssh_keys
-  
+  cicustom     = "vendor=ceph_isos_templates:snippets/ubuntu_2404_cloud.yml"
+  ciupgrade    = true
+  nameserver   = var.nameserver
+  searchdomain = var.searchdomain
+
+  ipconfig0 = "ip=${can(regex("/", var.ip_address)) ? var.ip_address : "${var.ip_address}/24"},gw=${var.gateway},ip6=dhcp"
+  ipconfig1 = var.bridge1 != "" && var.ip_address1 != "" ? "ip=${can(regex("/", var.ip_address1)) ? var.ip_address1 : "${var.ip_address1}/24"}" : null
+  ipconfig2 = var.bridge2 != "" && var.ip_address2 != "" ? "ip=${can(regex("/", var.ip_address2)) ? var.ip_address2 : "${var.ip_address2}/24"}" : null
+  ipconfig3 = var.bridge3 != "" && var.ip_address3 != "" ? "ip=${can(regex("/", var.ip_address3)) ? var.ip_address3 : "${var.ip_address3}/24"}" : null
+
+  skip_ipv6  = true
+  ciuser     = var.ci_user
+  cipassword = var.ci_password
+  sshkeys    = var.ssh_keys
+
   vga {
     type = "std"
   }
@@ -117,7 +117,7 @@ resource "proxmox_vm_qemu" "vm" {
     model   = "virtio"
     macaddr = var.mac_address
   }
-  
+
   dynamic "network" {
     for_each = local.enabled_extra_networks
     content {
@@ -130,7 +130,7 @@ resource "proxmox_vm_qemu" "vm" {
 
   lifecycle {
     ignore_changes = [
-      startup_shutdown, 
+      startup_shutdown,
       target_node,
       hastate,
       hagroup,
