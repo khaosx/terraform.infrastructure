@@ -7,9 +7,10 @@ Terraform configuration for managing Proxmox virtual infrastructure, including D
 This repository provisions and manages:
 - **DNS Servers** (dns-01, dns-02, dns-03) - Multi-homed Ubuntu 24.04 VMs for DNS resolution
 - **PiHole Servers** (pihole-01, pihole-02) - Single-homed Ubuntu 24.04 VMs for DNS filtering
+- **Dev/Test VM** (test-server) - Single-homed Ubuntu 24.04 VM for development and validation
 - **Resource Pools** - Backup tier management (Gold/Silver/Bronze)
 
-All VMs are configured with High Availability and distributed across the Proxmox cluster nodes.
+Production VMs are configured with High Availability and distributed across the Proxmox cluster nodes.
 
 ## Architecture
 
@@ -22,6 +23,7 @@ All VMs are configured with High Availability and distributed across the Proxmox
 │   dns-03        │   dns-02        │         dns-01              │
 │                 │   pihole-01     │                             │
 │                 │   pihole-02     │                             │
+│                 │   test-server   │                             │
 └─────────────────┴─────────────────┴─────────────────────────────┘
                               │
                               ▼
@@ -55,6 +57,7 @@ All VMs are configured with High Availability and distributed across the Proxmox
 ├── dns-03.tf                 # DNS server 3 configuration
 ├── pihole-01.tf              # PiHole server 1 configuration
 ├── pihole-02.tf              # PiHole server 2 configuration
+├── test-server.tf            # Dev/test VM configuration
 └── modules/
     ├── ubuntu2404_vm/        # Single-homed VM module
     │   ├── main.tf
@@ -151,6 +154,18 @@ State is stored in AWS S3 using [partial configuration](https://developer.hashic
 | Silver-Systems | Daily | Standard infrastructure |
 | Bronze-Systems | Weekly | Non-critical systems |
 
+## VLAN 20 Deterministic Mapping
+
+Use the following mapping for VLAN 20 hosts (x = host number 2..254):
+
+```
+IP:    10.0.20.x
+MAC:   BC:24:11:20:00:XX  (XX = two-digit hex of x)
+VMID:  2000 + x
+```
+
+Example: x=88 -> IP 10.0.20.88, MAC BC:24:11:20:00:58, VMID 2088.
+
 ## Usage
 
 ### Quick Start
@@ -186,6 +201,7 @@ terraform apply
 | dns-03 | 1027 | proxmox-01 | 10.0.10.27 | DNS Server | critical-infra |
 | pihole-01 | 1005 | proxmox-02 | 10.0.10.5 | PiHole DNS Filter | critical-infra |
 | pihole-02 | 1006 | proxmox-02 | 10.0.10.6 | PiHole DNS Filter | critical-infra |
+| test-server | 2088 | proxmox-02 | 10.0.20.88 | Dev/Test VM | none |
 
 ## Adding a New VM
 

@@ -131,7 +131,6 @@ resource "proxmox_vm_qemu" "vm" {
   lifecycle {
     ignore_changes = [
       startup_shutdown,
-      target_node,
       hastate,
       hagroup,
     ]

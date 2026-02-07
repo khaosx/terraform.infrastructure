@@ -90,10 +90,9 @@ resource "proxmox_vm_qemu" "vm" {
   lifecycle {
     ignore_changes = [
       startup_shutdown,
-      target_node,
       hastate,
       hagroup,
-      # Critical for Telmate: ignore disk metadata changes after creation to 
+      # Critical for Telmate: ignore disk metadata changes after creation to
       # prevent the provider from detaching the boot drive during later applies.
       # disks,
     ]

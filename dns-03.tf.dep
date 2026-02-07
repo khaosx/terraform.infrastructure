@@ -12,7 +12,7 @@ module "dns-03" {
   # --- Hardware Resources ---
   memory    = 2048
   cores     = 1
-  disk_size = "24G"
+  disk_size = "32G"
 
   # Network configuration
   bridge      = "vmbr0"

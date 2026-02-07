@@ -5,14 +5,14 @@ module "pihole-02" {
   # Properties for new VM
   vmid               = 1006
   name               = "pihole-02"
-  target_node        = "proxmox-02"
+  target_node        = "proxmox-03"
   tags               = "infrastructure,pihole,dns"
   start_at_node_boot = true
 
   # --- Hardware Resources ---
   memory    = 2048
   cores     = 1
-  disk_size = "24G"
+  disk_size = "32G"
 
   # Network configuration
   bridge      = "vmbr0"
