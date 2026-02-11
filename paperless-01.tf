@@ -12,7 +12,7 @@ module "paperless-01" {
   # --- Hardware Resources ---
   memory    = 8192
   cores     = 4
-  disk_size = "32G"
+  disk_size = "128G"
 
   # Network configuration
   bridge      = "vmbr20"
