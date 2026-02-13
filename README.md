@@ -8,6 +8,7 @@ This repository provisions and manages:
 - **DNS Servers** (dns-01, dns-02, dns-03) - Multi-homed Ubuntu 24.04 VMs for DNS resolution
 - **PiHole Servers** (pihole-01, pihole-02) - Single-homed Ubuntu 24.04 VMs for DNS filtering
 - **Dev/Test VM** (test-server) - Single-homed Ubuntu 24.04 VM for development and validation
+- **Concierge VM** (concierge) - Single-homed Ubuntu 24.04 VM for interface and notification services
 - **Resource Pools** - Backup tier management (Gold/Silver/Bronze)
 
 Production VMs are configured with High Availability and distributed across the Proxmox cluster nodes.
@@ -202,6 +203,7 @@ terraform apply
 | pihole-01 | 1005 | proxmox-02 | 10.0.10.5 | PiHole DNS Filter | critical-infra |
 | pihole-02 | 1006 | proxmox-02 | 10.0.10.6 | PiHole DNS Filter | critical-infra |
 | test-server | 2088 | proxmox-02 | 10.0.20.88 | Dev/Test VM | none |
+| concierge | 2089 | proxmox-02 | 10.0.20.89 | Interface/notification host | none |
 
 ## Adding a New VM
 
