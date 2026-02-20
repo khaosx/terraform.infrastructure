@@ -4,11 +4,6 @@ terraform {
       source  = "Telmate/proxmox"
       version = "3.0.2-rc07"
     }
-
-    technitium = {
-      source  = "kevynb/technitium"
-      version = "0.4.0"
-    }
   }
 }
 
@@ -18,11 +13,3 @@ provider "proxmox" {
   pm_api_token_secret = var.proxmox_api_token_secret
   pm_tls_insecure     = var.proxmox_tls_insecure
 }
-
-provider "technitium" {
-  # Default provider targets dns-01.
-  url                           = var.technitium_url_dns01
-  token                         = var.technitium_token_dns01
-  skip_certificate_verification = var.technitium_skip_certificate_verification
-}
-

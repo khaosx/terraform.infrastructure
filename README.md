@@ -5,9 +5,9 @@ Terraform configuration for managing Proxmox virtual infrastructure, including D
 ## Overview
 
 This repository provisions and manages:
-- **DNS Servers** (dns-01, dns-02, dns-03) - Multi-homed Ubuntu 24.04 VMs for DNS resolution
+- **DNS Servers** (dns-01, dns-02) - Multi-homed Ubuntu 24.04 VMs for DNS resolution
 - **PiHole Servers** (pihole-01, pihole-02) - Single-homed Ubuntu 24.04 VMs for DNS filtering
-- **Dev/Test VM** (test-server) - Single-homed Ubuntu 24.04 VM for development and validation
+- **Paperless VM** (paperless-01) - Single-homed Ubuntu 24.04 VM for document management
 - **Concierge VM** (concierge) - Single-homed Ubuntu 24.04 VM for interface and notification services
 - **Resource Pools** - Backup tier management (Gold/Silver/Bronze)
 
@@ -16,22 +16,22 @@ Production VMs are configured with High Availability and distributed across the 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Proxmox Cluster                             │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│   proxmox-01    │   proxmox-02    │         proxmox-03          │
-│                 │                 │                             │
-│   dns-03        │   dns-02        │         dns-01              │
-│                 │   pihole-01     │                             │
-│                 │   pihole-02     │                             │
-│                 │   test-server   │                             │
-└─────────────────┴─────────────────┴─────────────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │   Ceph Storage  │
-                    │  (ceph_rbd_data)│
-                    └─────────────────┘
+┌────────────────────────────────────────────────────────┐
+│                     Proxmox Cluster                    │
+├──────────────┬──────────────────────────┬──────────────┤
+│  proxmox-01  │       proxmox-02         │  proxmox-03  │
+│              │                          │              │
+│  (no VMs)    │  dns-02                  │  dns-01      │
+│              │  pihole-01               │  pihole-02   │
+│              │  paperless-01            │              │
+│              │  concierge               │              │
+└──────────────┴──────────────────────────┴──────────────┘
+                            │
+                            ▼
+                  ┌─────────────────┐
+                  │   Ceph Storage  │
+                  │  (ceph_rbd_data)│
+                  └─────────────────┘
 ```
 
 ## Prerequisites
@@ -50,22 +50,25 @@ Production VMs are configured with High Availability and distributed across the 
 ├── backend.tf                # S3 backend (partial configuration)
 ├── backend.hcl.tpl           # 1Password backend template
 ├── variables.tf              # Global variables
+├── outputs.tf                # VM ID and IP outputs
 ├── pools.tf                  # Proxmox resource pools
 ├── terraform.tfvars.tpl      # 1Password secret template
 ├── terraform.tfvars.example  # Example variables (safe to commit)
-├── dns-01.tf                 # DNS server 1 configuration
-├── dns-02.tf                 # DNS server 2 configuration
-├── dns-03.tf                 # DNS server 3 configuration
-├── pihole-01.tf              # PiHole server 1 configuration
-├── pihole-02.tf              # PiHole server 2 configuration
-├── test-server.tf            # Dev/test VM configuration
+├── dns-01.tf                 # DNS server 1 (proxmox-03, multihomed)
+├── dns-02.tf                 # DNS server 2 (proxmox-02, multihomed)
+├── pihole-01.tf              # PiHole server 1 (proxmox-02)
+├── pihole-02.tf              # PiHole server 2 (proxmox-03)
+├── paperless-01.tf           # Document management (proxmox-02)
+├── concierge.tf              # Notifications/interface (proxmox-02)
 └── modules/
     ├── ubuntu2404_vm/        # Single-homed VM module
     │   ├── main.tf
-    │   └── variables.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
     └── ubuntu2404_multihomed/ # Multi-homed VM module
         ├── main.tf
-        └── variables.tf
+        ├── variables.tf
+        └── outputs.tf
 ```
 
 ## Modules
@@ -121,19 +124,16 @@ Secrets are managed via 1Password CLI. The `terraform.tfvars.tpl` template refer
 - `Terraform Backend Config`
 
 **Required fields:**
-| Field | Description |
-|-------|-------------|
-| `proxmox_api_url` | Proxmox API endpoint |
-| `proxmox_api_token_id` | API token ID (e.g., `terraform@pve!token`) |
-| `proxmox_api_token_secret` | API token secret |
-| `proxmox_tls_insecure` | Skip TLS verification (`true`/`false`) |
-| `ci_user` | Cloud-init username |
-| `ci_password` | Cloud-init password |
-| `ssh_keys` | Public SSH key for VM access |
-| `searchdomain` | DNS search domain for VMs |
-| `s3_bucket` | S3 bucket for Terraform state |
-| `s3_key` | S3 key path for state file |
-| `s3_region` | AWS region for S3 bucket |
+| Field | Item | Description |
+|-------|------|-------------|
+| `proxmox_api_url` | Proxmox API Token - Terraform | Proxmox API endpoint |
+| `proxmox_api_token_id` | Proxmox API Token - Terraform | API token ID (e.g., `terraform@pve!token`) |
+| `proxmox_api_token_secret` | Proxmox API Token - Terraform | API token secret |
+| `ci_user` | Admin User | Cloud-init username |
+| `ci_password` | Admin User | Cloud-init password |
+| `ssh_keys` | Admin User | Public SSH key for VM access |
+| `s3_bucket` | Terraform Backend Config | S3 bucket for Terraform state |
+| `s3_region` | Terraform Backend Config | AWS region for S3 bucket |
 
 ### Manual Configuration (Alternative)
 
@@ -197,12 +197,11 @@ terraform apply
 
 | Name | VMID | Node | IP | Purpose | HA Group |
 |------|------|------|-----|---------|----------|
-| dns-01 | 1002 | proxmox-03 | 10.0.10.2 | DNS Server | critical-infra |
-| dns-02 | 1003 | proxmox-02 | 10.0.10.3 | DNS Server | critical-infra |
-| dns-03 | 1027 | proxmox-01 | 10.0.10.27 | DNS Server | critical-infra |
+| dns-01 | 1002 | proxmox-03 | 10.0.10.2 | DNS Server (multihomed) | critical-infra |
+| dns-02 | 1003 | proxmox-02 | 10.0.10.3 | DNS Server (multihomed) | critical-infra |
 | pihole-01 | 1005 | proxmox-02 | 10.0.10.5 | PiHole DNS Filter | critical-infra |
-| pihole-02 | 1006 | proxmox-02 | 10.0.10.6 | PiHole DNS Filter | critical-infra |
-| test-server | 2088 | proxmox-02 | 10.0.20.88 | Dev/Test VM | none |
+| pihole-02 | 1006 | proxmox-03 | 10.0.10.6 | PiHole DNS Filter | critical-infra |
+| paperless-01 | 2087 | proxmox-02 | 10.0.20.87 | Document management | none |
 | concierge | 2089 | proxmox-02 | 10.0.20.89 | Interface/notification host | none |
 
 ## Adding a New VM
