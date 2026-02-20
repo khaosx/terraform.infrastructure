@@ -8,6 +8,12 @@ proxmox_api_token_id     = "{{ op://khaosx-infrastructure/Proxmox API Token - Te
 proxmox_api_token_secret = "{{ op://khaosx-infrastructure/Proxmox API Token - Terraform/proxmox_api_token_secret }}"
 proxmox_tls_insecure     = false
 
+
+# Technitium API Configuration
+technitium_url_dns01                     = "{{ op://khaosx-infrastructure/Technitium API Token - Terraform/technitium_url_dns01 }}"
+technitium_token_dns01                   = "" # set at runtime via TF_VAR_technitium_token_dns01
+technitium_skip_certificate_verification = false
+
 # Cloud-init Configuration
 ci_user     = "{{ op://khaosx-infrastructure/Admin User/username }}"
 ci_password = "{{ op://khaosx-infrastructure/Admin User/password }}"

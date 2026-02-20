@@ -10,11 +10,39 @@ variable "proxmox_api_token_id" {
 variable "proxmox_api_token_secret" {
   description = "Proxmox password or API token"
   type        = string
+  sensitive   = true
 }
 variable "proxmox_tls_insecure" {
   description = "Skip TLS verification"
   type        = bool
   default     = true
+}
+
+
+# Technitium API credentials
+variable "technitium_url_dns01" {
+  description = "Technitium DNS-01 server URL (e.g. https://dns-01.example.com:53443)"
+  type        = string
+}
+
+variable "technitium_token_dns01" {
+  description = "Technitium API token for dns-01"
+  type        = string
+  sensitive   = true
+}
+
+
+variable "technitium_skip_certificate_verification" {
+  description = "Skip TLS verification for the Technitium provider"
+  type        = bool
+  default     = false
+}
+
+
+variable "technitium_dns01_ipv4" {
+  description = "IPv4 address for dns-01 A record"
+  type        = string
+  default     = "10.0.10.2"
 }
 
 variable "ci_user" {

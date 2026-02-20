@@ -6,6 +6,11 @@ variable "pool" {
   description = "Proxmox resource pool (Gold-Systems, Silver-Systems, Bronze-Systems)"
   type        = string
   default     = "Silver-Systems"
+
+  validation {
+    condition     = contains(["Gold-Systems", "Silver-Systems", "Bronze-Systems"], var.pool)
+    error_message = "pool must be one of: Gold-Systems, Silver-Systems, Bronze-Systems."
+  }
 }
 
 variable "start_at_node_boot" {
@@ -36,8 +41,22 @@ variable "disk_size" { default = "16G" }
 
 # --- Network Config ---
 variable "bridge" { default = "vmbr20" }
-variable "ip_address" { description = "IP or CIDR" }
-variable "gateway" { default = "10.0.20.1" }
+variable "ip_address" {
+  description = "IP or CIDR"
+
+  validation {
+    condition     = can(cidrhost(strcontains(var.ip_address, "/") ? var.ip_address : "${var.ip_address}/32", 0))
+    error_message = "ip_address must be a valid IPv4/IPv6 address or CIDR."
+  }
+}
+variable "gateway" {
+  default = "10.0.20.1"
+
+  validation {
+    condition     = can(cidrhost("${var.gateway}/32", 0))
+    error_message = "gateway must be a valid IPv4 address."
+  }
+}
 variable "mac_address" { default = "" }
 
 # --- Cloud-Init & DNS ---
@@ -60,6 +79,11 @@ variable "ha_state" {
   description = "The requested HA state (started, stopped, enabled, disabled)"
   type        = string
   default     = null # Default to null so it doesn't force HA on every VM
+
+  validation {
+    condition     = var.ha_state == null || contains(["started", "stopped", "enabled", "disabled"], var.ha_state)
+    error_message = "ha_state must be null or one of: started, stopped, enabled, disabled."
+  }
 }
 
 variable "ha_group_name" {

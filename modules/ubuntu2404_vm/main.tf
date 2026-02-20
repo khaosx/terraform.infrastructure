@@ -36,7 +36,7 @@ resource "proxmox_vm_qemu" "vm" {
   scsihw             = "virtio-scsi-pci"
   vm_state           = "running"
   automatic_reboot   = true
-  start_at_node_boot = true
+  start_at_node_boot = var.start_at_node_boot
   pool               = var.pool
   tags               = var.tags
 
@@ -46,7 +46,7 @@ resource "proxmox_vm_qemu" "vm" {
   nameserver   = var.nameserver
   searchdomain = var.searchdomain
 
-  ipconfig0 = "ip=${can(regex("/", var.ip_address)) ? var.ip_address : "${var.ip_address}/24"},gw=${var.gateway},ip6=dhcp"
+  ipconfig0 = "ip=${can(regex("/", var.ip_address)) ? var.ip_address : "${var.ip_address}/24"},gw=${var.gateway}"
 
   skip_ipv6  = true
   ciuser     = var.ci_user
