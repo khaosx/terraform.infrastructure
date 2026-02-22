@@ -44,3 +44,55 @@ variable "nameserver" {
   type        = string
   default     = "10.0.10.1"
 }
+
+variable "proxmox_nodes" {
+  type        = list(string)
+  description = "Exactly 3 Proxmox nodes, one per control-plane/worker slot"
+
+  validation {
+    condition     = length(var.proxmox_nodes) == 3
+    error_message = "proxmox_nodes must contain exactly 3 node names."
+  }
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "Talos/Kubernetes cluster name"
+  default     = "k8s-clst-01"
+}
+
+variable "cluster_vip" {
+  type        = string
+  description = "Control-plane virtual IP used for cluster endpoint"
+}
+
+variable "control_plane_ips" {
+  type        = list(string)
+  description = "Exactly 3 control-plane node IPs"
+
+  validation {
+    condition     = length(var.control_plane_ips) == 3
+    error_message = "control_plane_ips must contain exactly 3 IPs."
+  }
+}
+
+variable "worker_ips" {
+  type        = list(string)
+  description = "Exactly 3 worker node IPs"
+
+  validation {
+    condition     = length(var.worker_ips) == 3
+    error_message = "worker_ips must contain exactly 3 IPs."
+  }
+}
+
+variable "gateway" {
+  type        = string
+  description = "Default IPv4 gateway for all cluster nodes"
+}
+
+variable "storage_pool" {
+  type        = string
+  description = "Proxmox storage pool for VM disks"
+  default     = "ceph_rbd_data"
+}
