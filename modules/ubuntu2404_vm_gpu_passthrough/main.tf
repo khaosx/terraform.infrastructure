@@ -66,6 +66,14 @@ resource "proxmox_vm_qemu" "vm" {
     type = "serial0"
   }
 
+  pci {
+    id          = 0
+    mapping_id  = "Intel_Iris_XE"
+    pcie        = true
+    primary_gpu = false
+    rombar      = true
+  }
+
   # --- Storage ---
   disks {
     scsi {
@@ -100,7 +108,6 @@ resource "proxmox_vm_qemu" "vm" {
     ignore_changes = [
       startup_shutdown,
       hastate,
-      vga,
       hagroup,
       # Critical for Telmate: ignore disk metadata changes after creation to
       # prevent the provider from detaching the boot drive during later applies.

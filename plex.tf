@@ -1,5 +1,5 @@
 module "plex" {
-  source   = "./modules/ubuntu2404_vm"
+  source   = "./modules/ubuntu2404_vm_gpu_passthrough"
   clone_id = 9910
 
   # Properties for new VM

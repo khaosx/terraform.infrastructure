@@ -1,0 +1,73 @@
+# Pi-hole VMs
+output "pihole" {
+  description = "Pi-hole VM details keyed by VM name"
+  value = {
+    for name, instance in module.pihole :
+    name => {
+      vmid       = instance.vmid
+      name       = instance.name
+      ip_address = instance.ip_address
+    }
+  }
+}
+
+# Kubernetes control plane VMs
+output "control_plane" {
+  description = "Kubernetes control-plane VM details keyed by VM name"
+  value = {
+    for name, instance in module.control_plane :
+    name => {
+      vmid       = instance.vmid
+      name       = instance.name
+      ip_address = instance.ip_address
+    }
+  }
+}
+
+# Kubernetes worker VMs
+output "worker" {
+  description = "Kubernetes worker VM details keyed by VM name"
+  value = {
+    for name, instance in module.worker :
+    name => {
+      vmid       = instance.vmid
+      name       = instance.name
+      ip_address = instance.ip_address
+    }
+  }
+}
+
+# Kubernetes nodes (combined)
+output "k8s_nodes" {
+  description = "All Kubernetes VM details keyed by VM name, with node role"
+  value = merge(
+    {
+      for name, instance in module.control_plane :
+      name => {
+        role       = "control_plane"
+        vmid       = instance.vmid
+        name       = instance.name
+        ip_address = instance.ip_address
+      }
+    },
+    {
+      for name, instance in module.worker :
+      name => {
+        role       = "worker"
+        vmid       = instance.vmid
+        name       = instance.name
+        ip_address = instance.ip_address
+      }
+    }
+  )
+}
+
+# Plex VM
+output "plex" {
+  description = "Plex VM details"
+  value = {
+    vmid       = module.plex.vmid
+    name       = module.plex.name
+    ip_address = module.plex.ip_address
+  }
+}
