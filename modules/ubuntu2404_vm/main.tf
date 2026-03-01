@@ -53,17 +53,8 @@ resource "proxmox_vm_qemu" "vm" {
   cipassword = var.ci_password
   sshkeys    = var.ssh_keys
 
-  # vga {
-  #   type = "std"
-  # }
-
-  serial {
-    id   = 0
-    type = "socket"
-  }
-
   vga {
-    type = "serial0"
+    type = "std"
   }
 
   # --- Storage ---
